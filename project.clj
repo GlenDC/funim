@@ -1,6 +1,6 @@
 (defproject mgj-im "0.1.0-SNAPSHOT"
-  :description "FIXME: write this!"
-  :url "http://example.com/FIXME"
+  :description "A game made for the Monser Game Jam in Brussels using the theme 'inner mechanic'."
+  :url "https://github.com/glendc/mgj-im"
 
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/clojurescript "0.0-2371"]]
@@ -11,9 +11,9 @@
 
   :cljsbuild {
     :builds [{:id "mgj-im"
-              :source-paths ["src"]
+              :source-paths ["src/cljs"]
               :compiler {
-                :output-to "mgj_im.js"
+                :output-to "bin/js/mgj_im.js"
                 :output-dir "out"
                 :optimizations :none
                 :source-map true}}]})
