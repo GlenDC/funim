@@ -35,7 +35,7 @@
   [ctx]
   (canvas/font! ctx "monospace" 12 "normal")
   (canvas/text-align! ctx "right")
-  (canvas/fill-style! ctx [0 100 40])
+  (canvas/fill-style! ctx [255 0 0])
   (canvas/fill-text! ctx (.toLocaleString (js/Date.)) (- width 10) (- height 10)))
 
 (defn draw-text!

@@ -16,6 +16,16 @@
   ([h s l a]
    (str "hsla(" h "," s "%," l "%," a ")")))
 
+(defn rgba
+  "Returns a string with the rgba color.
+  r(red) is a value between 0 and 255
+  g(green) is a value between 0 and 255
+  b(blue) is a value between 0 and 255
+  a(lpha) [optional] between 0 and 1"
+  ([r g b] (rgba r g b 1))
+  ([r g b a]
+   (str "rgba(" r "," g "," b "," a ")")))
+
 (defn save! [ctx] (.save ctx))
 
 (defn restore! [ctx] (.restore ctx))
@@ -23,12 +33,16 @@
 (defn translate! [ctx x y] (.translate ctx x y))
 
 (defn fill-style! [ctx color]
-  (set! (.-fillStyle ctx) (apply hsla color)))
-
-(defn clear-rect! [ctx x y w h] (.clearRect ctx x y w h))
+  (set! (.-fillStyle ctx) (apply rgba color)))
 
 (defn fill-rect! [ctx x y w h] (.fillRect ctx x y w h))
 (defn stroke-rect! [ctx x y w h] (.strokeRect ctx x y w h))
+
+(defn clear-rect! [ctx x y w h]
+  (do
+    ;;(.clearRect ctx x y w h)
+    (fill-style! ctx [50, 50, 50])
+    (fill-rect! ctx x y w h)))
 
 (def deg360 (* 2 (.-PI js/Math)))
 (defn fill-circle! [ctx x y r]

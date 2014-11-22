@@ -2,11 +2,11 @@
   :description "A game made for the Monser Game Jam in Brussels using the theme 'inner mechanic'."
   :url "https://github.com/glendc/mgj-im"
 
-  :dependencies [[org.clojure/clojure "1.6.0"]
-                 [org.clojure/clojurescript "0.0-2371"]
+  :dependencies [[org.clojure/clojure "1.5.1"]
+                 [org.clojure/clojurescript "0.0-2138"]
                  [org.clojure/core.async "0.1.267.0-0d7780-alpha"]]
 
-  :plugins [[lein-cljsbuild "1.0.4-SNAPSHOT"]]
+  :plugins [[lein-cljsbuild "1.0.1"]]
 
   :source-paths ["src"]
 

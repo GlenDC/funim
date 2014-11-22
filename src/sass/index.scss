@@ -1,4 +1,4 @@
-@import "http://fonts.googleapis.com/css?family=Tenor+Sans";
+@import url(http://fonts.googleapis.com/css?family=Tenor+Sans);
 
 @mixin transform-translate($x, $y) {
   transform: translate($x, $y);
@@ -8,19 +8,18 @@
 }
 
 body {
-  background-color: white;
+  background-color: black;
   font-family: 'Tenor Sans', 'sans-serif';
 }
 
-a {
-  color: #007AFF;
+h3, a {
+  color: grey;
 }
 
 #game {
   position: absolute;
-  top: 50%;
   left: 0; right: 0;
-  @include transform-translate(0%, 50%);
+  @include transform-translate(0%, 25%);
   text-align: center;
 }
 
@@ -32,6 +31,5 @@ a {
 }
 
 #fim {
-  border: 1px solid hlsl(30, 80%, 80%);
-  background-color: hlsl(50, 80%, 90%);
+  border: 1px solid hsl(30, 80%, 80%);
 }
