@@ -12,7 +12,9 @@ module.exports = function(grunt) {
         files: {
           'build/js/app.js': [
             'bin/js/**/*.js',
+            'out/mgj_im/common.js',
             'out/mgj_im/res.js',
+            'out/mgj_im/game.js',
             'out/mgj_im/core.js'],
           'build/js/melonjs.js': [
             'lib/melonJS-2.0.0.js',

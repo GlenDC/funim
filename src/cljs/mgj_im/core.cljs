@@ -1,8 +1,17 @@
 (ns mgj-im.core
   (:require [mgj-im.res :as res]
+            [mgj-im.game :as game]
     ))
 
 (enable-console-print!)
+
+;; mutable global data
+
+(def global-data {
+  :iterator 0
+  })
+
+;; main game
 
 (def main (js-obj
   "resources" res/resources
@@ -18,5 +27,7 @@
               (. js/me.state (change js/me.state.LOADING))))))
   "loaded" (fn []
     (do
-      (. js/me.state (change js/me.state.PLAY))
+      (. js/me.state (set js/me.state.GAME_SCREEN (game/game-screen.)))
+      (. js/me.state (change js/me.state.GAME_SCREEN))
       (println "Loaded!")))))
+
