@@ -8,3 +8,5 @@ pom.xml
 .lein-repl-history
 .lein-plugins/
 /bin/
+/node_modules/
+/build/
