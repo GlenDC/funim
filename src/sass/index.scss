@@ -1,33 +1,15 @@
 @import url(http://fonts.googleapis.com/css?family=Tenor+Sans);
 
-@mixin transform-translate($x, $y) {
-  transform: translate($x, $y);
-  -webkit-transform: translate($x, $y);
-  -moz-transform: translate($x, $y);
-  -ms-transform: translate($x, $y);
-}
-
 body {
   background-color: black;
   font-family: 'Tenor Sans', 'sans-serif';
-}
-
-h3, a {
-  color: grey;
+  margin: 0;
+  padding: 0;
 }
 
 #game {
-  position: absolute;
-  left: 0; right: 0;
-  @include transform-translate(0%, 25%);
-  text-align: center;
-}
-
-#game > * {
-  display: inline-block;
-  text-align: left;
-  vertical-align: middle;
-  margin: 0 20px
+  margin: 0;
+  padding: 0;
 }
 
 #fim {
