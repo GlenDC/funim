@@ -10,3 +10,4 @@ pom.xml
 /bin/
 /node_modules/
 /build/
+/.sass-cache/

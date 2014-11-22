@@ -10,15 +10,12 @@ module.exports = function(grunt) {
     concat: {
       dist: {
         files: {
-          'build/js/app.js': [
-            'bin/js/**/*.js',
-            'out/mgj_im/common.js',
-            'out/mgj_im/res.js',
-            'out/mgj_im/game.js',
-            'out/mgj_im/core.js'],
-          'build/js/melonjs.js': [
-            'lib/melonJS-2.0.0.js',
-            'lib/plugins/debug/*.js']
+          'build/js/fim.js': [
+            'bin/js/mgj_im.js'
+            ],
+          'build/css/styles.css': [
+            'bin/css/**/*.css'
+          ]
         }
       }
     },
@@ -86,15 +83,26 @@ module.exports = function(grunt) {
         // or an Array of String for multiple entries
         // You can use globing patterns like `css/**/*.css`
         // See https://github.com/gruntjs/grunt-contrib-watch#files
-        files: ['bin/**/*.js', 'data/**/*.png', 'index.html', 'index.css'],
-        tasks: ['concat',/* 'uglify',*/ 'copy', 'processhtml']
+        files: ['bin/**/*.js', 'data/**/*.png', 'index.html', 'src/sass/**/*.scss'],
+        tasks: ['sass', 'concat',/* 'uglify',*/ 'copy', 'processhtml']
       }
     },
+    sass: {
+      dist: {
+        files: [{
+          expand: true,
+          cwd: 'src/sass',
+          src: ['*.scss'],
+          dest: 'bin/css',
+          ext: '.css'
+        }]
+      }
+    }
   });
  
   // Creates the `server` task
   grunt.registerTask('server', [
-    'concat'/*, 'uglify'*/, 'copy', 'processhtml',
+    'sass', 'concat'/*, 'uglify'*/, 'copy', 'processhtml',
     'express',
     'watch'
   ]);
