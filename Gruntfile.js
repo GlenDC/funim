@@ -9,14 +9,15 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
     concat: {
       dist: {
-        src: [
-          'lib/melonJS-2.0.0.js',
-          'lib/plugins/*.js',
-          'lib/plugins/debug/*.js',
-          'bin/js/**/*.js',
-          'out/mgj_im/res.js',
-          'out/mgj_im/core.js'],
-        dest: 'build/js/app.js'
+        files: {
+          'build/js/app.js': [
+            'bin/js/**/*.js',
+            'out/mgj_im/res.js',
+            'out/mgj_im/core.js'],
+          'build/js/melonjs.js': [
+            'lib/melonJS-2.0.0.js',
+            'lib/plugins/debug/*.js']
+        }
       }
     },
     copy: {

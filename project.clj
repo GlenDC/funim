@@ -13,6 +13,7 @@
     :builds [{:id "mgj-im"
               :source-paths ["src/cljs"]
               :compiler {
+                :externs ["lib/melonJS-2.0.0-min.js"]
                 :output-to "bin/js/mgj_im.js"
                 :output-dir "out"
                 :optimizations :none
