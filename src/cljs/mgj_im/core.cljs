@@ -17,4 +17,6 @@
               (. js/me.loader (preload main.resources))
               (. js/me.state (change js/me.state.LOADING))))))
   "loaded" (fn []
-    (println "Loaded!"))))
+    (do
+      (. js/me.state (change js/me.state.PLAY))
+      (println "Loaded!")))))
