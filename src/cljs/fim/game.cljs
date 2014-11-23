@@ -76,10 +76,12 @@
 
 (defn get-next-light-grid
   [wo]
-  (let [level (peek (get wo :levels))]
-    (set-light-grid
-      (assoc wo :levels (pop (get wo :levels)))
-      level)))
+  (let [levels (get wo :levels)]
+    (let [level (peek levels)]
+      (do (println (str "New Level => " level))
+        (set-light-grid
+          (assoc wo :levels (pop levels))
+          level)))))
 
 ;; --------------------------------------------------------------------------------
 ;; Helpers
@@ -170,10 +172,11 @@
               darkness)))}))
 
 (defn update-lights [lights counter posi click-array]
-  (let [aux (fn aux [out in counter]
-              (if (empty? in) out
-                (aux (conj out (update-light (peek in) counter posi click-array)) (pop in) (dec counter))))]
-    (aux [] (into [] (rseq lights)) counter)))
+  (if (or (nil? lights) (empty? lights)) lights
+    (let [aux (fn aux [out in counter]
+                (if (empty? in) out
+                  (aux (conj out (update-light (peek in) counter posi click-array)) (pop in) (dec counter))))]
+      (aux [] (into [] (rseq lights)) counter))))
 
 ;; --------------------------------------------------------------------------------
 ;; Mouse Logic
@@ -207,22 +210,27 @@
 
 (defn update-world
   "Applies the game constraints to the world and returns the new version."
-  [{:keys [status speed posi lights] :as world}]
+  [{:keys [status speed posi levels lights] :as world}]
   (let [click (deref player-click)
         tasi (get posi :tasi)
         size (get posi :size)]
-    (do
-      (reset! player-click {:x -1 :y -1})
-      { :status status
-        :speed speed
-        :lights (update-lights lights (get-cell-counter posi) posi (get-click-array posi click))
-        :posi {
-          :tasi tasi
-          :size (if (= size tasi) size
-                    (if (< (abs (- tasi size)) grow-speed) tasi
-                      (if (< tasi size)
-                        (- size grow-speed)
-                        (+ size grow-speed))))}})))
+    (let [lights (update-lights lights (get-cell-counter posi) posi (get-click-array posi click))]
+      (do
+        (println (str "size " size " tasi " tasi))
+        (reset! player-click {:x -1 :y -1})
+        (let [new-world
+          { :status status
+            :speed speed
+            :lights lights
+            :levels levels
+            :posi {
+              :tasi tasi
+              :size (if (= size tasi) size
+                        (if (< (abs (- tasi size)) grow-speed) tasi
+                          (if (< tasi size)
+                            (- size grow-speed)
+                            (+ size grow-speed))))}}]
+          (if (are-all-lights-on? lights) (get-next-light-grid new-world) new-world))))))
 
 (defn game!
   "Game internal loop that processes commands and updates state applying functions"
