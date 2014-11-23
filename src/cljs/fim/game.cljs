@@ -78,10 +78,9 @@
   [wo]
   (let [levels (get wo :levels)]
     (let [level (peek levels)]
-      (do (println (str "New Level => " level))
-        (set-light-grid
-          (assoc wo :levels (pop levels))
-          level)))))
+      (set-light-grid
+        (assoc wo :levels (pop levels))
+        level))))
 
 ;; --------------------------------------------------------------------------------
 ;; Helpers
@@ -216,7 +215,6 @@
         size (get posi :size)]
     (let [lights (update-lights lights (get-cell-counter posi) posi (get-click-array posi click))]
       (do
-        (println (str "size " size " tasi " tasi))
         (reset! player-click {:x -1 :y -1})
         (let [new-world
           { :status status
