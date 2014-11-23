@@ -19,7 +19,7 @@
 (def height 640)
 
 (def light-speed 0.05)
-(def grow-speed 0.025)
+(def grow-speed 0.05)
 
 (def initial-grids {
   3 [[lon  loff  loff
@@ -194,7 +194,9 @@
           :tasi tasi
           :size (if (= size tasi) size
                     (if (< (abs (- tasi size)) grow-speed) tasi
-                      (+ (* (- tasi size) grow-speed) size)))}})))
+                      (if (< tasi size)
+                        (- size grow-speed)
+                        (+ size grow-speed))))}})))
 
 (defn game!
   "Game internal loop that processes commands and updates state applying functions"
