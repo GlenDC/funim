@@ -263,6 +263,9 @@
                       (>! notify [status])
                       (>! notify [:world new-world])
                       (recur new-world))))
+          :reset (do
+            (if (put! cmds [:init]))
+              (recur initial-world))
 
           ;; :turbo (recur (update-speed world v))
 

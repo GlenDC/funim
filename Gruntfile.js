@@ -15,6 +15,9 @@ module.exports = function(grunt) {
             ],
           'build/css/styles.css': [
             'bin/css/**/*.css'
+          ],
+          'build/js/lib.js': [
+            'js/**/*.js'
           ]
         }
       }
@@ -54,8 +57,8 @@ module.exports = function(grunt) {
       },
       dist: {
         files: {
-          'build/js/app.min.js': [
-            'build/js/app.js'
+          'build/js/mgj_im_prod.js': [
+            'build/js/mgj_im_prod_min.js'
           ]
         }
       }
@@ -84,7 +87,7 @@ module.exports = function(grunt) {
         // You can use globing patterns like `css/**/*.css`
         // See https://github.com/gruntjs/grunt-contrib-watch#files
         files: ['bin/js/mgj_im.js', 'data/**/*.png', 'index.html', 'src/sass/**/*.scss'],
-        tasks: ['sass', 'concat',/* 'uglify',*/ 'copy', 'processhtml']
+        tasks: ['sass', 'concat',/*'uglify',*/ 'copy', 'processhtml']
       }
     },
     sass: {
@@ -102,7 +105,7 @@ module.exports = function(grunt) {
  
   // Creates the `server` task
   grunt.registerTask('server', [
-    'sass', 'concat'/*, 'uglify'*/, 'copy', 'processhtml',
+    'sass', 'concat',/*'uglify',*/ 'copy', 'processhtml',
     'express',
     'watch'
   ]);

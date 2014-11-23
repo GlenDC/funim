@@ -11,6 +11,21 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <script src="js/lib.js"></script>
+
+    <script>
+      $(document).ready(function(){
+        $("#game").css("display", "none");
+        $("#game").fadeIn(2000);
+      });
+    </script>
+
+    <link rel="shortcut icon" href="/data/fim.ico">
+
   </head>
 
   <body>
