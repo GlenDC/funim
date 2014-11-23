@@ -23,38 +23,38 @@
 
 (def initial-grids {
   1 [[loff]]
-  3 [[lon  loff  loff
+  3 [[loff  lon  lon
       loff loff  loff
-      loff loff  loff]]
-  5 [[lon  loff  loff  loff  loff
+      lon lon  loff]]
+  5 [[lon  loff  loff  loff  lon
+      loff lon  loff  loff  lon
       loff loff  loff  loff  loff
-      loff loff  loff  loff  loff
-      loff loff  loff  loff  loff
-      loff loff  loff  loff  loff]]
+      lon loff  lon  lon  loff
+      loff loff  loff  lon  lon]]
   8 [[lon  loff  loff  loff  loff  loff  loff  loff
+      loff loff  lon  loff  loff  lon  loff  loff
       loff loff  loff  loff  loff  loff  loff  loff
-      loff loff  loff  loff  loff  loff  loff  loff
-      loff loff  loff  loff  loff  loff  loff  loff
-      loff loff  loff  loff  loff  loff  loff  loff
-      loff loff  loff  loff  loff  loff  loff  loff
-      loff loff  loff  loff  loff  loff  loff  loff
+      loff loff  lon  lon  loff  loff  loff  lon
+      loff lon  lon  lon  lon  loff  loff  loff
+      lon loff  loff  loff  loff  loff  loff  loff
+      loff loff  lon  loff  loff  loff  lon  loff
       loff loff  loff  loff  loff  loff  loff  loff]]
-  16 [[lon  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff
+  16 [[lon  loff  loff  loff  loff  lon  lon  loff  loff  loff  loff  loff  loff  loff  loff  loff
+      loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  lon  loff  loff  loff  loff  loff
       loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff
       loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff
+      loff  loff  lon  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff
+      loff  loff  loff  loff  loff  loff  lon  loff  loff  loff  loff  loff  loff  loff  lon  loff
       loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff
+      loff  loff  loff  loff  loff  loff  loff  loff  lon  loff  loff  loff  loff  loff  loff  loff
       loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff
-      loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff
-      loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff
-      loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff
-      loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff
-      loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff
-      loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff
-      loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff
-      loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff
-      loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff
-      loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff
-      loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff]]})
+      loff  loff  loff  loff  lon  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff
+      loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  lon
+      loff  loff  lon  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff
+      loff  lon  lon  loff  loff  loff  loff  loff  loff  loff  lon  loff  loff  loff  loff  loff
+      loff  lon  lon  loff  lon  loff  loff  loff  loff  loff  loff  loff  loff  loff  lon  loff
+      loff  lon  loff  loff  loff  loff  loff  loff  loff  lon  loff  loff  loff  loff  loff  loff
+      loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  lon  lon  lon]]})
 
 (def initial-world {
   :status nil
