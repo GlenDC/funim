@@ -26,6 +26,11 @@
 (def width 640)
 (def height 640)
 
+(def black [0 0 0])
+(def white [255 255 255])
+
+(def clon [1 0])
+
 (defn resize-canvas!
   "Resize canvas to the required size for the board"
   [] (canvas/set-dimensions! cvs width height))
@@ -57,27 +62,33 @@
 
 (defn game-world->ui-world
   "Transforms a game snapshot into ui world data"
-  [game]
-  game)
-;;  [{:keys [snake pills] :as game}]
-;;  {:snake (map point->coords (:body snake))
-;; :pills (map #(-> %
-;;                  (point->coords)
-;;                  (move-coords half-square half-square)) pills)})
+  [{:keys [size lights] :as world}]
+  {
+    :lights lights
+    :size size})
 
 ;; -------------------------------------------------------------------------------
 ;; Render logic
 
+(defn draw-light-grid [ctx lights counter size width height]
+  (if (>= counter 0)
+    (do
+      (canvas/fill-style! ctx (conj black (get (peek lights) :energy)))
+      (let [x (* (. js/Math (floor (/ counter size))) width)
+            y (* (mod counter size) height)]
+        (do (canvas/fill-rect! ctx (dec x) (dec y) (+ width 2) (+ height 2))
+            (draw-light-grid ctx (pop lights) (dec counter) size width height))))))
+
 (defn render
   "Render"
-  [{:keys [speed] :as world}]
+  [{:keys [size lights] :as world}]
   (if world
     (do
       (canvas/clear-rect! ctx 0 0 width height)
       (canvas/save! ctx)
       (canvas/translate! ctx 0.5 0.5) ; To avoid blurry lines
-      (draw-timestamp! ctx)
-      ;; draw game objects
+      (draw-light-grid ctx lights (dec (* size size)) size (/ width size) (/ height size))
+      ;;(draw-timestamp! ctx)
       (canvas/restore! ctx)))
   )
 

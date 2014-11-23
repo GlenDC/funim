@@ -5,15 +5,46 @@
 ;; --------------------------------------------------------------------------------
 ;; Game info
 
-(def game-speed "Game logic tick speed" 300)
+(def game-speed "Game logic tick speed" 20)
+
+(def loff { :on false :energy 0.0 })
+(def lon { :on true :energy 1.0 })
+
+(def light-speed 0.05)
+
+(def initial-grids {
+  3 [lon  loff  loff
+     loff loff  loff
+     loff loff  loff]
+  5 [lon  loff  loff  loff  loff
+     loff loff  loff  loff  loff
+     loff loff  loff  loff  loff
+     loff loff  loff  loff  loff
+     loff loff  loff  loff  loff]})
 
 (def initial-world {
-  :speed game-speed})
+  :status nil
+  :speed game-speed
+  :size 3
+  :lights (get initial-grids 3)
+  })
 
 ;; --------------------------------------------------------------------------------
-;; Light Puzzle logic
+;; Lights out
 
-;; todo
+(defn update-light [{:keys [on energy] :as light}] {
+  :on on
+  :energy (if (and on (> energy 0.0))
+            (- energy light-speed)
+            (if (and (not on) (< energy 1.0))
+              (+ energy light-speed)
+              energy))})
+
+(defn update-lights [lights]
+  (let [aux (fn aux [out in]
+              (if (empty? in) out
+                (aux (conj out (update-light (peek in))) (pop in))))]
+    (aux [] (into [] (rseq lights)))))
 
 ;; --------------------------------------------------------------------------------
 ;; Game logic
@@ -28,15 +59,19 @@
 
 (defn update-world
   "Applies the game constraints to the world and returns the new version."
-  [{:keys [speed] :as world}]
-  world)
+  [{:keys [status speed size lights] :as world}]
+  {
+    :status status
+    :speed speed
+    :size size
+    :lights (update-lights lights)
+    })
 
 (defn game!
   "Game internal loop that processes commands and updates state applying functions"
   [initial-world cmds notify]
-  (go-loop [{:keys [status snake pills speed] :as world} initial-world]
+  (go-loop [{:keys [status speed size lights] :as world} initial-world]
     (let [[cmd v] (<! cmds)]
-;;       (println "Received: " cmd)
       (if (and (= status :game-over) (not= cmd :reset))
         (recur world)
         (case cmd
@@ -59,7 +94,7 @@
                       (>! notify [:world new-world])
                       (recur new-world))))
 
-          :turn (println "reset")
+          :turn (println (str "turn: " v))
 
           ;; :turbo (recur (update-speed world v))
 
