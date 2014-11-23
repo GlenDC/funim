@@ -41,7 +41,7 @@
 (defn clear-rect! [ctx x y w h]
   (do
     ;;(.clearRect ctx x y w h)
-    (fill-style! ctx [50, 50, 50])
+    (fill-style! ctx [255, 250, 205])
     (fill-rect! ctx x y w h)))
 
 (def deg360 (* 2 (.-PI js/Math)))

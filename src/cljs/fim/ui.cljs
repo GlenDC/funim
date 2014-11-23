@@ -69,7 +69,6 @@
 (defn draw-light-grid [ctx lights counter size width height]
   (if (>= counter 0)
     (do
-      (println (str "Darkness:" (get (peek lights) :darkness)))
       (canvas/fill-style! ctx (conj black (get (peek lights) :darkness)))
       (let [x (game/get-cell-x counter size)
             y (game/get-cell-y counter size)]
