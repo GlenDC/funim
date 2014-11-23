@@ -17,12 +17,17 @@
 
     <script src="js/lib.js"></script>
 
-    <!--<script>
+    <script>
+      window.onload = function() {
+        var canvas = document.getElementById("fim");
+        canvas.height = canvas.offsetHeight;
+        canvas.width  = canvas.offsetWidth;
+      }
       /*<!--$(document).ready(function(){
         $("#game").css("display", "none");
         $("#game").fadeIn(2000);
       });*/
-    </script>-->
+    </script>
 
     <link rel="shortcut icon" href="/data/fim.ico">
 
