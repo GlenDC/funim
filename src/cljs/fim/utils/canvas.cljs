@@ -57,6 +57,22 @@
     (.arc x y r 0 deg360 true)
     (.stroke)))
 
+(defn create-img
+  [src]
+  (let [img (js/Image.)]
+    (do
+      (aset img "src" src)
+      img)))
+
+(defn draw-image
+  ([ctx img x y] (. ctx (drawImage img x y)))
+  ([ctx img x y w h] (. ctx (drawImage img x y w h)))
+  ([ctx img x y w h a]
+    (do
+      (aset ctx "globalAlpha" a)
+      (. ctx (drawImage img x y w h))
+      (aset ctx "globalAlpha" 1.0))))
+
 (defn font
   "Returns a string with the font parsed."
   [font style size] (str style " " size "pt " font))

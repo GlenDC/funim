@@ -3,6 +3,7 @@
   (:require [cljs.core.async :refer [chan put! <! timeout]]
             [goog.events :as events]
             [goog.dom :as gdom]
+            [fim.utils.canvas :as canvas]
             [clojure.set :refer [union]]
             [clojure.string :as string]))
 
@@ -20,6 +21,7 @@
 
 (def light-speed 0.05)
 (def grow-speed 0.05)
+(def fade-speed 0.04)
 
 (def initial-grids {
   1 [[loff]]
@@ -63,7 +65,12 @@
   :levels [16 8 5 3 1]
   :posi { :size 1 :tasi 1 }
   :lights (get (get initial-grids 7) 0)
+  :menu-alpha 0.0
   })
+
+(def image-loaded (atom false))
+
+(def start-img (canvas/create-img "/data/start-screen.png"))
 
 ;; --------------------------------------------------------------------------------
 ;; World Factory
@@ -209,7 +216,7 @@
 
 (defn update-world
   "Applies the game constraints to the world and returns the new version."
-  [{:keys [status speed posi levels lights] :as world}]
+  [{:keys [status speed posi levels lights menu-alpha] :as world}]
   (let [click (deref player-click)
         tasi (get posi :tasi)
         size (get posi :size)]
@@ -221,6 +228,11 @@
             :speed speed
             :lights lights
             :levels levels
+            :menu-alpha (clamp 0 1(if (> size 1)
+                          (if (<= (abs menu-alpha) fade-speed) 0.0
+                            (- menu-alpha fade-speed))
+                          (if (<= (abs menu-alpha) fade-speed) 1.0
+                            (+ menu-alpha fade-speed))))
             :posi {
               :tasi tasi
               :size (if (= size tasi) size

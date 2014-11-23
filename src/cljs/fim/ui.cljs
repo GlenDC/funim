@@ -58,10 +58,11 @@
 
 (defn game-world->ui-world
   "Transforms a game snapshot into ui world data"
-  [{:keys [posi lights] :as world}]
+  [{:keys [posi lights menu-alpha] :as world}]
   {
     :lights lights
-    :posi posi})
+    :posi posi
+    :menu-alpha menu-alpha})
 
 ;; -------------------------------------------------------------------------------
 ;; Render logic
@@ -78,7 +79,7 @@
 
 (defn render
   "Render"
-  [{:keys [posi lights] :as world}]
+  [{:keys [posi lights menu-alpha] :as world}]
   (if world
     (do
       (canvas/clear-rect! ctx 0 0 game/width game/height)
@@ -86,6 +87,8 @@
       (canvas/translate! ctx 0.5 0.5) ; To avoid blurry lines
       (draw-light-grid ctx lights (game/get-cell-counter posi) posi (game/get-cell-width posi) (game/get-cell-height posi))
       ;;(draw-timestamp! ctx)
+      (if (> menu-alpha 0.0)
+        (canvas/draw-image ctx game/start-img 0 0 game/width game/height menu-alpha))
       (canvas/restore! ctx)))
   )
 
