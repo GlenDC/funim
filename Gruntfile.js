@@ -83,7 +83,7 @@ module.exports = function(grunt) {
         // or an Array of String for multiple entries
         // You can use globing patterns like `css/**/*.css`
         // See https://github.com/gruntjs/grunt-contrib-watch#files
-        files: ['bin/**/*.js', 'data/**/*.png', 'index.html', 'src/sass/**/*.scss'],
+        files: ['bin/js/mgj_im.js', 'data/**/*.png', 'index.html', 'src/sass/**/*.scss'],
         tasks: ['sass', 'concat',/* 'uglify',*/ 'copy', 'processhtml']
       }
     },
