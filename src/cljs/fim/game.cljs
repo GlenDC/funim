@@ -70,7 +70,7 @@
 
 (def image-loaded (atom false))
 
-(def start-img (canvas/create-img "/data/start-screen.png"))
+(def start-img (canvas/create-img "../../data/start-screen.png"))
 
 ;; --------------------------------------------------------------------------------
 ;; World Factory
