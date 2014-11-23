@@ -18,24 +18,38 @@
 (def width 640)
 (def height 640)
 
-(def light-speed 0.025)
+(def light-speed 0.05)
 
 (def initial-grids {
-  3 [lon  loff  loff
-     loff loff  loff
-     loff loff  loff]
-  5 [lon  loff  loff  loff  loff
-     loff loff  loff  loff  loff
-     loff loff  loff  loff  loff
-     loff loff  loff  loff  loff
-     loff loff  loff  loff  loff]})
+  3 [[lon  loff  loff
+      loff loff  loff
+      loff loff  loff]]
+  5 [[lon  loff  loff  loff  loff
+      loff loff  loff  loff  loff
+      loff loff  loff  loff  loff
+      loff loff  loff  loff  loff
+      loff loff  loff  loff  loff]]
+  7 [[lon  loff  loff  loff  loff  loff  loff
+      loff loff  loff  loff  loff  loff  loff
+      loff loff  loff  loff  loff  loff  loff
+      loff loff  loff  loff  loff  loff  loff
+      loff loff  loff  loff  loff  loff  loff
+      loff loff  loff  loff  loff  loff  loff
+      loff loff  loff  loff  loff  loff  loff]]})
 
 (def initial-world {
   :status nil
   :speed game-speed
-  :size 3
-  :lights (get initial-grids 3)
+  :size 7
+  :lights (get (get initial-grids 7) 0)
   })
+
+;; --------------------------------------------------------------------------------
+;; World Factory
+
+(defn set-light-grid
+  ([w a] (set-light-grid w a 0))
+  ([w a b] (assoc (assoc w :size a) :lights (get (get initial-grids a) b))))
 
 ;; --------------------------------------------------------------------------------
 ;; Helpers
@@ -184,7 +198,7 @@
 
 (defn init [commands]
   (let [notifos (chan)]
-    (game! initial-world commands notifos)
+    (game! (set-light-grid initial-world 3) commands notifos)
     (define-click-event)
     notifos))
 
