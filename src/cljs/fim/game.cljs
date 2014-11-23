@@ -75,18 +75,32 @@
   }))
 
 (defn is-click-on-light?
-  [counter size click]
-  (if (= (get click :x) -1) false
+  [counter click-array]
+  (some #(= counter %) click-array))
+
+(defn get-index-from-xy [x y s] (+ y (* x s)))
+
+(defn get-click-array
+  [size click]
+  (if (= (get click :x) -1) []
     (let [cx (- width (get click :x))
           cy (- height (get click :y))
-          w (- (get-cell-width size) 2)
-          h (- (get-cell-height size) 2)
-          x (+ (get-cell-x counter size) 1)
-          y (+ (get-cell-y counter size) 1)]
-      (and (> cx x) (< cx (+ x w)) (> cy y) (< cy (+ y h))))))
+          w (get-cell-width size)
+          h (get-cell-height size)]
+      (let [x (. js/Math (floor (/ cx w)))
+            y (. js/Math (floor (/ cy h)))]
+        (map
+          (fn [{:keys [x y] :as p}] (get-index-from-xy x y size))
+          (filter
+            (fn [{:keys [x y] :as p}] (and (>= x 0) (< x size) (>= y 0) (< y size)))
+            [{:x (+ x 0) :y (+ y 0)}
+             {:x (+ x 1) :y (+ y 0)}
+             {:x (- x 1) :y (+ y 0)}
+             {:x (+ x 0) :y (+ y 1)}
+             {:x (+ x 0) :y (- y 1)}]))))))
 
-(defn update-light [{:keys [on darkness] :as light} counter size click]
-  (let [is-on? (if (is-click-on-light? counter size click) (not on) on)]{
+(defn update-light [{:keys [on darkness] :as light} counter size click-array]
+  (let [is-on? (if (is-click-on-light? counter click-array) (not on) on)]{
   :on is-on?
   :darkness (clamp 0 1(if (and is-on? (> darkness 0.0))
             (- darkness light-speed)
@@ -94,10 +108,10 @@
               (+ darkness light-speed)
               darkness)))}))
 
-(defn update-lights [lights counter size click]
+(defn update-lights [lights counter size click-array]
   (let [aux (fn aux [out in counter]
               (if (empty? in) out
-                (aux (conj out (update-light (peek in) counter size click)) (pop in) (dec counter))))]
+                (aux (conj out (update-light (peek in) counter size click-array)) (pop in) (dec counter))))]
     (aux [] (into [] (rseq lights)) counter)))
 
 ;; --------------------------------------------------------------------------------
@@ -139,7 +153,7 @@
       { :status status
         :speed speed
         :size size
-        :lights (update-lights lights (get-cell-counter size) size click)
+        :lights (update-lights lights (get-cell-counter size) size (get-click-array size click))
         })))
 
 (defn game!
