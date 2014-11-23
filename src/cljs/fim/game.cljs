@@ -228,11 +228,11 @@
             :speed speed
             :lights lights
             :levels levels
-            :menu-alpha (clamp 0 1(if (> size 1)
+            :menu-alpha (if (= (count levels) 4) (clamp 0 1(if (> size 1)
                           (if (<= (abs menu-alpha) fade-speed) 0.0
-                            (- menu-alpha fade-speed))
+                            (- menu-alpha fade-speed) 0)
                           (if (<= (abs menu-alpha) fade-speed) 1.0
-                            (+ menu-alpha fade-speed))))
+                            (+ menu-alpha fade-speed) 1))) 0)
             :posi {
               :tasi tasi
               :size (if (= size tasi) size
