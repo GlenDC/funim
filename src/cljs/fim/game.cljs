@@ -22,6 +22,7 @@
 (def grow-speed 0.05)
 
 (def initial-grids {
+  1 [[loff]]
   3 [[lon  loff  loff
       loff loff  loff
       loff loff  loff]]
@@ -30,18 +31,36 @@
       loff loff  loff  loff  loff
       loff loff  loff  loff  loff
       loff loff  loff  loff  loff]]
-  7 [[lon  loff  loff  loff  loff  loff  loff
-      loff loff  loff  loff  loff  loff  loff
-      loff loff  loff  loff  loff  loff  loff
-      loff loff  loff  lon  loff  loff  loff
-      loff loff  loff  loff  loff  loff  loff
-      loff loff  loff  loff  loff  loff  loff
-      loff loff  loff  loff  loff  loff  loff]]})
+  8 [[lon  loff  loff  loff  loff  loff  loff  loff
+      loff loff  loff  loff  loff  loff  loff  loff
+      loff loff  loff  loff  loff  loff  loff  loff
+      loff loff  loff  loff  loff  loff  loff  loff
+      loff loff  loff  loff  loff  loff  loff  loff
+      loff loff  loff  loff  loff  loff  loff  loff
+      loff loff  loff  loff  loff  loff  loff  loff
+      loff loff  loff  loff  loff  loff  loff  loff]]
+  16 [[lon  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff
+      loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff
+      loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff
+      loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff
+      loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff
+      loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff
+      loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff
+      loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff
+      loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff
+      loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff
+      loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff
+      loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff
+      loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff
+      loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff
+      loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff
+      loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff  loff]]})
 
 (def initial-world {
   :status nil
   :speed game-speed
   :click { :x -1 :y -1 }
+  :levels [16 8 5 3 1]
   :posi { :size 1 :tasi 1 }
   :lights (get (get initial-grids 7) 0)
   })
@@ -54,6 +73,13 @@
   ([w t x]
     (let [wo (assoc w :lights (get (get initial-grids t) x))]
       (assoc wo :posi { :size 1 :tasi t }))))
+
+(defn get-next-light-grid
+  [wo]
+  (let [level (peek (get wo :levels))]
+    (set-light-grid
+      (assoc wo :levels (pop (get wo :levels)))
+      level)))
 
 ;; --------------------------------------------------------------------------------
 ;; Helpers
@@ -226,7 +252,7 @@
 
 (defn init [commands]
   (let [notifos (chan)]
-    (game! (set-light-grid initial-world 5) commands notifos)
+    (game! (get-next-light-grid initial-world) commands notifos)
     (define-click-event)
     notifos))
 
