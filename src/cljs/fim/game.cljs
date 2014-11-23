@@ -19,6 +19,7 @@
 (def height 640)
 
 (def light-speed 0.05)
+(def grow-speed 0.025)
 
 (def initial-grids {
   3 [[lon  loff  loff
@@ -32,7 +33,7 @@
   7 [[lon  loff  loff  loff  loff  loff  loff
       loff loff  loff  loff  loff  loff  loff
       loff loff  loff  loff  loff  loff  loff
-      loff loff  loff  loff  loff  loff  loff
+      loff loff  loff  lon  loff  loff  loff
       loff loff  loff  loff  loff  loff  loff
       loff loff  loff  loff  loff  loff  loff
       loff loff  loff  loff  loff  loff  loff]]})
@@ -40,7 +41,8 @@
 (def initial-world {
   :status nil
   :speed game-speed
-  :size 7
+  :click { :x -1 :y -1 }
+  :posi { :size 1 :tasi 1 }
   :lights (get (get initial-grids 7) 0)
   })
 
@@ -48,8 +50,10 @@
 ;; World Factory
 
 (defn set-light-grid
-  ([w a] (set-light-grid w a 0))
-  ([w a b] (assoc (assoc w :size a) :lights (get (get initial-grids a) b))))
+  ([w t] (set-light-grid w t 0))
+  ([w t x]
+    (let [wo (assoc w :lights (get (get initial-grids t) x))]
+      (assoc wo :posi { :size 1 :tasi t }))))
 
 ;; --------------------------------------------------------------------------------
 ;; Helpers
@@ -58,62 +62,79 @@
   (if (< x l) l
     (if (> x h) h x)))
 
+(defn floor [x] (. js/Math (floor x)))
+
+(defn abs [x] (. js/Math (abs x)))
+
 ;; --------------------------------------------------------------------------------
 ;; Lights out
 
+(defn is-locked? [s] (not (= (floor s) s)))
+
 (defn get-cell-width
-  [size]
-  (/ width size))
+  [{:keys [size tasi] :as posi}]
+  (* (/ width tasi) (/ tasi size)))
 
 (defn get-cell-height
-  [size]
-  (/ height size))
+  [{:keys [size tasi] :as posi}]
+  (* (/ height tasi) (/ tasi size)))
 
 (defn get-cell-x
-  [counter size]
-  (let [width (get-cell-width size)]
-    (* (. js/Math (floor (/ counter size))) width)))
+  [counter posi]
+  (let [width (get-cell-width posi)]
+    (* (floor (/ counter (get posi :tasi))) width)))
 
 (defn get-cell-y
-  [counter size]
-  (let [height (get-cell-height size)]
-    (* (mod counter size) height)))
+  [counter posi]
+  (let [height (get-cell-height posi)]
+    (* (mod counter (get posi :tasi)) height)))
 
 (defn get-cell-counter
-  [size]
-  (dec (* size size)))
+  [{:keys [tasi] :as posi}]
+  (dec (* tasi tasi)))
 
 (def player-click (atom {
   :x -1
   :y -1
   }))
 
+(defn are-all-lights-on?
+  [lights]
+  (if (empty? lights) true
+    (let [on (get (peek lights) :on)]
+      (if (not on) false
+        (are-all-lights-on? (pop lights))))))
+
 (defn is-click-on-light?
   [counter click-array]
   (some #(= counter %) click-array))
 
-(defn get-index-from-xy [x y s] (+ y (* x s)))
+(defn get-index-from-xy [x y posi] (+ y (* x (get posi :size))))
 
 (defn get-click-array
-  [size click]
-  (if (= (get click :x) -1) []
-    (let [cx (- width (get click :x))
-          cy (- height (get click :y))
-          w (get-cell-width size)
-          h (get-cell-height size)]
-      (let [x (. js/Math (floor (/ cx w)))
-            y (. js/Math (floor (/ cy h)))]
-        (map
-          (fn [{:keys [x y] :as p}] (get-index-from-xy x y size))
-          (filter
-            (fn [{:keys [x y] :as p}] (and (>= x 0) (< x size) (>= y 0) (< y size)))
-            [{:x (+ x 0) :y (+ y 0)}
-             {:x (+ x 1) :y (+ y 0)}
-             {:x (- x 1) :y (+ y 0)}
-             {:x (+ x 0) :y (+ y 1)}
-             {:x (+ x 0) :y (- y 1)}]))))))
+  [posi click]
+  (let [ox (get click :x)
+        oy (get click :y)
+        size (get posi :size)
+        tasi (get posi :tasi)]
+    (if (or (is-locked? size) (= ox -1)) []
+      (let [cx (- width ox)
+            cy (- height oy)
+            w (get-cell-width posi)
+            h (get-cell-height posi)]
+        (let [x (floor (/ cx w))
+              y (floor (/ cy h))]
+          (map
+            (fn [{:keys [x y] :as p}] (get-index-from-xy x y posi))
+            (filter
+              (fn [{:keys [x y] :as p}] (and (>= x 0) (< x size) (>= y 0) (< y size)))
+              [{:x (+ x 0) :y (+ y 0)}
+               {:x (+ x 1) :y (+ y 0)}
+               {:x (- x 1) :y (+ y 0)}
+               {:x (+ x 0) :y (+ y 1)}
+               {:x (+ x 0) :y (- y 1)}])))))))
 
-(defn update-light [{:keys [on darkness] :as light} counter size click-array]
+(defn update-light [{:keys [on darkness] :as light} counter posi click-array]
   (let [is-on? (if (is-click-on-light? counter click-array) (not on) on)]{
   :on is-on?
   :darkness (clamp 0 1(if (and is-on? (> darkness 0.0))
@@ -122,10 +143,10 @@
               (+ darkness light-speed)
               darkness)))}))
 
-(defn update-lights [lights counter size click-array]
+(defn update-lights [lights counter posi click-array]
   (let [aux (fn aux [out in counter]
               (if (empty? in) out
-                (aux (conj out (update-light (peek in) counter size click-array)) (pop in) (dec counter))))]
+                (aux (conj out (update-light (peek in) counter posi click-array)) (pop in) (dec counter))))]
     (aux [] (into [] (rseq lights)) counter)))
 
 ;; --------------------------------------------------------------------------------
@@ -160,20 +181,25 @@
 
 (defn update-world
   "Applies the game constraints to the world and returns the new version."
-  [{:keys [status speed size lights] :as world}]
-  (let [click (deref player-click)]
+  [{:keys [status speed posi lights] :as world}]
+  (let [click (deref player-click)
+        tasi (get posi :tasi)
+        size (get posi :size)]
     (do
       (reset! player-click {:x -1 :y -1})
       { :status status
         :speed speed
-        :size size
-        :lights (update-lights lights (get-cell-counter size) size (get-click-array size click))
-        })))
+        :lights (update-lights lights (get-cell-counter posi) posi (get-click-array posi click))
+        :posi {
+          :tasi tasi
+          :size (if (= size tasi) size
+                    (if (< (abs (- tasi size)) grow-speed) tasi
+                      (+ (* (- tasi size) grow-speed) size)))}})))
 
 (defn game!
   "Game internal loop that processes commands and updates state applying functions"
   [initial-world cmds notify]
-  (go-loop [{:keys [status speed size lights] :as world} initial-world]
+  (go-loop [{:keys [status speed posi lights] :as world} initial-world]
     (let [[cmd v] (<! cmds)]
       (if (and (= status :game-over) (not= cmd :reset))
         (recur world)
@@ -198,7 +224,7 @@
 
 (defn init [commands]
   (let [notifos (chan)]
-    (game! (set-light-grid initial-world 3) commands notifos)
+    (game! (set-light-grid initial-world 5) commands notifos)
     (define-click-event)
     notifos))
 

@@ -58,32 +58,33 @@
 
 (defn game-world->ui-world
   "Transforms a game snapshot into ui world data"
-  [{:keys [size lights] :as world}]
+  [{:keys [posi lights] :as world}]
   {
     :lights lights
-    :size size})
+    :posi posi})
 
 ;; -------------------------------------------------------------------------------
 ;; Render logic
 
-(defn draw-light-grid [ctx lights counter size width height]
-  (if (>= counter 0)
+(defn draw-light-grid [ctx lights counter posi width height]
+  (if (and (not (empty? lights)) (>= counter 0))
     (do
       (canvas/fill-style! ctx (conj black (get (peek lights) :darkness)))
-      (let [x (game/get-cell-x counter size)
-            y (game/get-cell-y counter size)]
-        (do (canvas/fill-rect! ctx (dec x) (dec y) (+ width 2) (+ height 2))
-            (draw-light-grid ctx (pop lights) (dec counter) size width height))))))
+      (let [x (game/get-cell-x counter posi)
+            y (game/get-cell-y counter posi)]
+        (do ;;(println (str x " " y " " width " " height ))
+            (canvas/fill-rect! ctx (dec x) (dec y) (+ width 2) (+ height 2))
+            (draw-light-grid ctx (pop lights) (dec counter) posi width height))))))
 
 (defn render
   "Render"
-  [{:keys [size lights] :as world}]
+  [{:keys [posi lights] :as world}]
   (if world
     (do
       (canvas/clear-rect! ctx 0 0 game/width game/height)
       (canvas/save! ctx)
       (canvas/translate! ctx 0.5 0.5) ; To avoid blurry lines
-      (draw-light-grid ctx lights (game/get-cell-counter size) size (game/get-cell-width size) (game/get-cell-height size))
+      (draw-light-grid ctx lights (game/get-cell-counter posi) posi (game/get-cell-width posi) (game/get-cell-height posi))
       ;;(draw-timestamp! ctx)
       (canvas/restore! ctx)))
   )
