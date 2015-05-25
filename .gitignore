@@ -16,4 +16,7 @@ cljs/.sass-cache/
 **/*.zip
 
 # Elm Script GitIgnore Section
-# ...
+**/*.swp
+elm/*.js
+elm/*.json
+elm/elm-stuff/
