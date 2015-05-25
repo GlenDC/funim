@@ -1,14 +1,19 @@
-pom.xml
-*jar
-/lib/
-/classes/
-/out/
-/target/
-.lein-deps-sum
-.lein-repl-history
-.lein-plugins/
-/bin/
-/node_modules/
-/build/
-/.sass-cache/
+# Clojure Script GitIgnore Section
+
+cljs/pom.xml
+cljs/*jar
+cljs/lib/
+cljs/classes/
+cljs/out/
+cljs/target/
+cljs/.lein-deps-sum
+cljs/.lein-repl-history
+cljs/.lein-plugins/
+cljs/bin/
+cljs/node_modules/
+cljs/build/
+cljs/.sass-cache/
 **/*.zip
+
+# Elm Script GitIgnore Section
+# ...
