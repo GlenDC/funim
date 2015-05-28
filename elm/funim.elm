@@ -9,26 +9,26 @@ main : Signal Element
 main =
   Signal.map render Window.dimensions
 
-renderGridLine : (Int, Int, Int, Int) -> Form
-renderGridLine (ax, ay, bx, by) =
-  traced (dashed grey) (path ([(toFloat ax, toFloat ay), (toFloat bx, toFloat by)]))
+renderGridLine : Int -> Int -> Int -> Int -> Form
+renderGridLine ax ay bx by =
+  traced (dashed red) (path ([(toFloat ax, toFloat ay), (toFloat bx, toFloat by)]))
 
-renderGridLines : Int -> Int -> ((Int,  Int) -> Form) -> List Form
-renderGridLines (size, i, renderLine) =
+renderGridLines : Int -> Int -> Int -> (Int -> Int -> Form) -> List Form
+renderGridLines gridsz cellsz i renderLine =
   if i == 0 then [] else
-    let i = i - 1
-        pos = i * size 
-    in (renderLine pos size) :: renderGridLines size i renderLine
+    let j = i - 1
+        pos = j * cellsz 
+    in (renderLine pos gridsz) :: (renderGridLines gridsz cellsz j renderLine)
 
-renderGrid : (Int, Int, Int) -> Element
-renderGrid (size, gx, gy) =
-  let renderHor = \pos size -> (renderGridLine pos 0 pos size)
-      renderVer = \pos size -> (renderGridLine 0 pos size pos)
-      grid = renderGridLines size gy renderHor ++
-        renderGridLines size gx renderVer
+renderGrid : Int -> Int -> Int -> Int -> Element
+renderGrid gridsz cellsz gx gy =
+  let renderHor = \pos sz -> renderGridLine pos 0 pos sz 
+      renderVer = \pos sz -> renderGridLine 0 pos sz pos
+      grid = (renderGridLines gridsz cellsz gy renderHor) ++
+        (renderGridLines gridsz cellsz gx renderVer)
   in
-    collage size size grid
+    collage gridsz gridsz grid
 
 render : (Int, Int) -> Element
 render (x, y) =
-  renderGrid (x, 4, 4)
+  renderGrid 400 50 8 8
