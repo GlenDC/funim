@@ -42,7 +42,7 @@ getLevel level =
     Nothing -> []
 
 type alias State = { level : Int, grid : List Bool }
-gameState = { level = 1, grid = getLevel 1 }
+gameState = { level = 1, grid = getLevel 2 }
 
 main : Signal Element
 main =
@@ -50,33 +50,40 @@ main =
 
 renderCell : Bool -> Float -> Float -> Float -> Form
 renderCell isLightOn x y size =
-  let clr = if (Debug.log "isLightOn: " isLightOn) then green else red
-  in move ((Debug.log "X: " x), (Debug.log "Y: " y)) (filled clr (square size))
+  let clr = if isLightOn then green else red
+  in move (x, y) (filled clr (square size))
 
 renderGrid : List Bool -> Int -> Float -> Float -> List Form -> List Form
-renderGrid state length padding size forms =
+renderGrid state length size offset forms =
   case state of
     [] -> forms
     hd :: rest ->
       let l = (List.length state) - 1
-          x = padding + ((toFloat (l % length)) * size)
-          y = padding + ((toFloat (round ((toFloat l) / (toFloat length)))) * size)
-          npadding = negate padding
-      in renderGrid rest length padding size ((renderCell hd x y size) :: forms)
+          xi = toFloat (l % length) 
+          yi = toFloat (floor ((toFloat l) / (toFloat length)))
+          x = offset + (xi * size)
+          y = offset + (yi * size)
+      in renderGrid rest length size offset (
+        (renderCell hd x y size) ::
+          (l |> toString |> Text.fromString |> text |> move (x, y)):: forms)
 
 render : (Int, Int) -> Element
 render (x, y) =
   let smallest = toFloat (min x y)
       padding = smallest / 8
       contextsz = round (smallest)
-      gridLength = round (sqrt (toFloat (List.length gameState.grid)))
+      gridLength = gameState.grid |> List.length |> toFloat |> sqrt |> round
+      gridsz = (toFloat contextsz) - (padding * 2)
+      cellsz = gridLength |> toFloat |> (/) gridsz
+      hcellsz = cellsz / 2
+      nhgridsz = gridsz |> (/) 2.0 |> (+) padding |> (+) hcellsz |> negate
+      textsz = padding / 2.5
   in
     collage contextsz contextsz
-      ((move (0, (smallest / 2)) (Text.fromString "Light || Dark"
+      ((move (0, ((smallest / 2) - textsz)) (Text.fromString "Light || Dark"
         |> Text.typeface [ "Helvetica" ]
-        |> Text.color grey
+        |> Text.color lightGrey
         |> Text.bold
-        |> Text.height (padding / 2)
+        |> Text.height textsz
         |> text)) ::
-      (renderGrid gameState.grid gridLength padding
-        ((toFloat contextsz) / (toFloat gridLength)) []))
+        (renderGrid gameState.grid gridLength cellsz nhgridsz []))
