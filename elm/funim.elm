@@ -42,11 +42,16 @@ getLevel level =
     Nothing -> []
 
 type alias State = { level : Int, grid : List Bool }
-gameState = { level = 0, grid = getLevel 0}
+gameState = { level = 0, grid = getLevel 2}
 
 main : Signal Element
 main =
   Signal.map render Window.dimensions
+
+calculateOffset : Float -> Int -> Float
+calculateOffset cellsz icell =
+  let evenify = toFloat (icell - (icell % 2))
+  in ((evenify / 2.0) * cellsz) |> negate
 
 renderCell : Bool -> Float -> Float -> Float -> Form
 renderCell isLightOn x y size =
@@ -64,8 +69,7 @@ renderGrid state length size offset forms =
           x = offset + (xi * size)
           y = offset + (yi * size)
       in renderGrid rest length size offset (
-        (renderCell hd x y size) ::
-          (((toString (floor x)) ++ ", " ++ (toString (floor y))) |> Text.fromString |> text |> move (x, y)):: forms)
+        (renderCell hd x y size) :: forms)
 
 renderText : String -> Float -> Float -> Float -> Form
 renderText content x y sz =
@@ -78,13 +82,14 @@ render (x, y) =
   let smallest = toFloat (min (min x y) 1080)
       padding = smallest / 8
       contextsz = round (smallest)
-      gridLength = gameState.grid |> List.length |> toFloat |> sqrt |> round
+      gridLength = gameState.grid |> List.length |> toFloat |> sqrt |> floor
       gridsz = (toFloat contextsz) - (padding * 2)
       cellsz = gridLength |> toFloat |> (/) gridsz
-      hcellsz = cellsz / 2
-      nhgridsz = gridsz |> (/) 2.0 |> (+) padding |> (+) hcellsz |> negate
+      offset = calculateOffset cellsz gridLength
   in
     collage contextsz contextsz
-      ((renderText "Light || Dark" 0 (smallest / 2.0) (padding / 2.5)) ::
-       (renderText "Toggle any light by clicking on it." 0 (negate (smallest / 4.0)) (padding / 3.5)) ::
-       (renderGrid gameState.grid gridLength cellsz nhgridsz []))
+      ((renderText "Light || Dark"
+          0 (smallest / 2.05) (padding / 2.5)) ::
+       (renderText "Toggle any light by clicking on it."
+          0 (negate (smallest / 2.05)) (padding / 3.5)) ::
+       (renderGrid gameState.grid gridLength cellsz offset []))
