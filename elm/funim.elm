@@ -4,6 +4,7 @@ import Color exposing (..)
 import Graphics.Collage exposing (..)
 import Graphics.Element exposing (..)
 import Window
+import Mouse
 import Array exposing (Array)
 import Text
 import Debug
@@ -42,11 +43,17 @@ getLevel level =
     Nothing -> []
 
 type alias State = { level : Int, grid : List Bool }
-gameState = { level = 0, grid = getLevel 2}
+
+getInitialGameState : Bool -> State
+getInitialGameState checkCache =
+  { level = 0, grid = getLevel 1 }
+
+input = Signal.map2 (,) Mouse.isDown Mouse.position
 
 main : Signal Element
 main =
-  Signal.map render Window.dimensions
+  Signal.map2 render Window.dimensions
+    (Signal.foldp update (getInitialGameState True) input)
 
 calculateOffset : Float -> Int -> Float
 calculateOffset cellsz icell =
@@ -77,12 +84,12 @@ renderText content x y sz =
     |> Text.typeface [ "Helvetica" ]
     |> Text.color darkGrey |> Text.height sz |> text)
 
-render : (Int, Int) -> Element
-render (x, y) =
-  let smallest = toFloat (min (min x y) 1080)
+render : (Int, Int) -> State -> Element
+render (x, y) state =
+  let smallest = toFloat (min x y)
       padding = smallest / 8
       contextsz = round (smallest)
-      gridLength = gameState.grid |> List.length |> toFloat |> sqrt |> floor
+      gridLength = state.grid |> List.length |> toFloat |> sqrt |> floor
       gridsz = (toFloat contextsz) - (padding * 2)
       cellsz = gridLength |> toFloat |> (/) gridsz
       offset = calculateOffset cellsz gridLength
@@ -95,4 +102,15 @@ render (x, y) =
           0 (halfsz - h1sz) h1sz) ::
        (renderText "Toggle any light by clicking on it."
           0 (negate (halfsz - (h2sz * 2))) h2sz) ::
-       (renderGrid gameState.grid gridLength cellsz offset []))
+       (renderGrid state.grid gridLength cellsz offset []))
+
+toggleGrid : List Bool -> Int -> Int -> List Bool
+toggleGrid lights mx my =
+  lights
+
+update : (Bool, (Int, Int)) -> State -> State
+update (hasLeftClicked, (mx, my)) state =
+  if hasLeftClicked then
+    let newGrid = toggleGrid state.grid mx my
+    in { state | grid <- newGrid }
+  else state
