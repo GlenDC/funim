@@ -103,6 +103,7 @@ render (x, y) state =
        (renderText "Toggle any light by clicking on it."
           0 (negate (halfsz - (h2sz * 2))) h2sz) ::
        (renderGrid state.grid gridLength cellsz offset []))
+    |> container x y middle
 
 toggleGrid : List Bool -> Int -> Int -> List Bool
 toggleGrid lights mx my =
