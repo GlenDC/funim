@@ -3,6 +3,7 @@ module Funim where
 import Color exposing (..)
 import Graphics.Collage exposing (..)
 import Graphics.Element exposing (..)
+import Graphics.Input exposing (..)
 import Window
 import Mouse
 import Array exposing (Array)
@@ -42,41 +43,50 @@ getLevel level =
     Just list -> list 
     Nothing -> []
 
-type alias State = { level : Int, grid : List Bool }
+type alias State = { level : Int, count : Int, grid : List Bool }
 
 getInitialGameState : Bool -> State
 getInitialGameState checkCache =
-  { level = 0, grid = getLevel 1 }
+  let level = 2
+      grid = getLevel level
+      count = grid |> List.length |> toFloat |> sqrt |> floor
+  in { level = level, count = count, grid = grid }
 
-input = Signal.map2 (,) Mouse.isDown Mouse.position
+lightQuery : Signal.Mailbox Int
+lightQuery = Signal.mailbox 0
 
 main : Signal Element
 main =
   Signal.map2 render Window.dimensions
-    (Signal.foldp update (getInitialGameState True) input)
+    (Signal.foldp update (getInitialGameState True) lightQuery.signal)
 
 calculateOffset : Float -> Int -> Float
 calculateOffset cellsz icell =
   let evenify = toFloat (icell - (icell % 2))
   in ((evenify / 2.0) * cellsz) |> negate
 
-renderCell : Bool -> Float -> Float -> Float -> Form
-renderCell isLightOn x y size =
-  let clr = if isLightOn then yellow else (greyscale 0.6)
-  in move (x, y) (filled clr (circle (size / 2.5)))
+createLight : Bool -> Float -> Float -> Float -> Int -> Form
+createLight isOn x y size i =
+  let colour = if isOn then yellow else (greyscale 0.6)
+      ctsz = floor (size)
+      light = collage ctsz ctsz [(filled colour (circle (size / 2.5)))]
+  in move (x, y) (toForm (customButton
+    (Signal.message lightQuery.address i)
+    light light light))
 
 renderGrid : List Bool -> Int -> Float -> Float -> List Form -> List Form
 renderGrid state length size offset forms =
   case state of
     [] -> forms
     hd :: rest ->
-      let l = (List.length state) - 1
+      let totalLength = length * length
+          l = totalLength - (List.length state)
           xi = toFloat (l % length) 
           yi = toFloat (floor ((toFloat l) / (toFloat length)))
           x = offset + (xi * size)
           y = offset + (yi * size)
       in renderGrid rest length size offset (
-        (renderCell hd x y size) :: forms)
+        (createLight hd x y size l) :: forms)
 
 renderText : String -> Float -> Float -> Float -> Form
 renderText content x y sz =
@@ -89,10 +99,9 @@ render (x, y) state =
   let smallest = toFloat (min x y)
       padding = smallest / 8
       contextsz = round (smallest)
-      gridLength = state.grid |> List.length |> toFloat |> sqrt |> floor
       gridsz = (toFloat contextsz) - (padding * 2)
-      cellsz = gridLength |> toFloat |> (/) gridsz
-      offset = calculateOffset cellsz gridLength
+      cellsz = state.count |> toFloat |> (/) gridsz
+      offset = calculateOffset cellsz state.count
       h1sz = padding / 2.5
       h2sz = padding / 3.5
       halfsz = smallest / 2.0
@@ -104,16 +113,32 @@ render (x, y) state =
             0 (halfsz - h1sz) h1sz) ::
          (renderText "Toggle any light by clicking on it."
             0 (negate (halfsz - (h2sz * 2))) h2sz) ::
-         (renderGrid state.grid gridLength cellsz offset []))
+         (renderGrid state.grid state.count cellsz offset []))
        |> container x y middle)]
 
-toggleGrid : List Bool -> Int -> Int -> List Bool
-toggleGrid lights mx my =
-  lights
+updateLight : Int -> Int -> Int -> Bool -> Bool
+updateLight i target count isOn =
+  let toggle = not isOn
+      pos = i - target
+  in if | pos == 0 -> toggle
+        | pos == count -> toggle
+        | pos == (negate count) -> toggle
+        | otherwise ->
+           let cy = floor ((toFloat i) / (toFloat count))
+               ty = floor ((toFloat target) / (toFloat count))
+           in if | pos == 1 && (cy == ty) -> toggle
+                 | pos == (negate 1) && (cy == ty) -> toggle
+                 | otherwise -> isOn
 
-update : (Bool, (Int, Int)) -> State -> State
-update (hasLeftClicked, (mx, my)) state =
-  if hasLeftClicked then
-    let newGrid = toggleGrid state.grid mx my
-    in { state | grid <- newGrid }
-  else state
+updateGrid : Int -> Int -> Int -> List Bool -> List Bool -> List Bool
+updateGrid i target count lights aux =
+  case lights of
+    [] -> List.reverse aux
+    hd::tl ->
+      updateGrid (i + 1) target count tl
+        ((updateLight i target count hd) :: aux)
+
+update : Int -> State -> State
+update i state =
+  let newGrid = updateGrid 0 i state.count state.grid []
+  in { state | grid <- newGrid }
