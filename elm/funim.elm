@@ -4,39 +4,79 @@ import Color exposing (..)
 import Graphics.Collage exposing (..)
 import Graphics.Element exposing (..)
 import Window
-  
+import Array exposing (Array)
+import Text
+import Debug
+
+-- TODO:
+---- Fix Positioning grid
+------ Need Title + one line instruction [TOP]
+------ Ned Control instructions [BOTTOM]
+---- Replace lines by squares
+------ this should be based on the state (on / off)
+---- Add Mouse Click Signal (left)
+------ check if on Square, if so change state
+---- Game logic -> If complete light or dark -> Next Level
+---- store game logic in browser coockie
+---- add reset button
+---- Add 5 Levels
+---- Make Levels generate automatically based on
+------ Steps Sequence (logic)
+------ Rules (only generated solvable levels)
+
+levelsDatabase = Array.fromList [
+  [ False ], -- level 1, Nv. 1
+  [ False, True, True, -- level 2, Nv. 3
+    False, False, False,
+    True, True, False ],
+  [ True, False, False, False, True, -- level 3, Nv. 5
+    False, True, False, False, True,
+    False, False, False, False, False,
+    True, False, True, True, False,
+    False, False, False, True, True ] ]
+
+getLevel : Int -> List Bool
+getLevel level =
+  case (Array.get level levelsDatabase) of
+    Just list -> list 
+    Nothing -> []
+
+type alias State = { level : Int, grid : List Bool }
+gameState = { level = 1, grid = getLevel 1 }
+
 main : Signal Element
 main =
   Signal.map render Window.dimensions
 
-renderGridLine : Float -> Float -> Float -> Float -> Form
-renderGridLine ax ay bx by =
-  traced (solid grey) (path ([(ax, ay), (bx, by)]))
+renderCell : Bool -> Float -> Float -> Float -> Form
+renderCell isLightOn x y size =
+  let clr = if (Debug.log "isLightOn: " isLightOn) then green else red
+  in move ((Debug.log "X: " x), (Debug.log "Y: " y)) (filled clr (square size))
 
-renderGridLines : Float -> Float -> Int -> (Float -> Float -> Form) -> List Form
-renderGridLines gridsz cellsz i renderLine =
-  if i == 0 then [] else
-    let j = i - 1
-        pos = j * cellsz 
-    in (renderLine pos gridsz) :: (renderGridLines gridsz cellsz j renderLine)
-
-renderGrid : Float -> Float -> Int -> Int -> Int -> Element
-renderGrid gridsz cellsz gx gy padding =
-  let renderHor = \pos sz -> renderGridLine pos 0.0 pos sz 
-      renderVer = \pos sz -> renderGridLine 0.0 pos sz pos
-      grid = (renderGridLines gridsz cellsz gy renderHor) ++
-        (renderGridLines gridsz cellsz gx renderVer)
-      collagesz = (round gridsz) + (padding * 2)
-      trans = negate (gridsz / 2.0)
-  in
-    grid
-      |> List.map (\x -> move (trans, trans) x)
-      |> collage collagesz collagesz
+renderGrid : List Bool -> Int -> Float -> Float -> List Form -> List Form
+renderGrid state length padding size forms =
+  case state of
+    [] -> forms
+    hd :: rest ->
+      let l = (List.length state) - 1
+          x = padding + ((toFloat (l % length)) * size)
+          y = padding + ((toFloat (round ((toFloat l) / (toFloat length)))) * size)
+          npadding = negate padding
+      in renderGrid rest length padding size ((renderCell hd x y size) :: forms)
 
 render : (Int, Int) -> Element
 render (x, y) =
-  let padding = 50
-      sz = toFloat ((min x y) - (padding*2))
-      cx = 5
-      ccx = sz / cx
-  in renderGrid sz ccx (cx+1) (cx+1) 50
+  let smallest = toFloat (min x y)
+      padding = smallest / 8
+      contextsz = round (smallest)
+      gridLength = round (sqrt (toFloat (List.length gameState.grid)))
+  in
+    collage contextsz contextsz
+      ((move (0, (smallest / 2)) (Text.fromString "Light || Dark"
+        |> Text.typeface [ "Helvetica" ]
+        |> Text.color grey
+        |> Text.bold
+        |> Text.height (padding / 2)
+        |> text)) ::
+      (renderGrid gameState.grid gridLength padding
+        ((toFloat contextsz) / (toFloat gridLength)) []))
