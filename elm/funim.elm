@@ -62,8 +62,8 @@ calculateOffset cellsz icell =
 
 renderCell : Bool -> Float -> Float -> Float -> Form
 renderCell isLightOn x y size =
-  let clr = if isLightOn then lightGrey else darkGrey
-  in move (x, y) (filled clr (square size))
+  let clr = if isLightOn then yellow else (greyscale 0.6)
+  in move (x, y) (filled clr (circle (size / 2.5)))
 
 renderGrid : List Bool -> Int -> Float -> Float -> List Form -> List Form
 renderGrid state length size offset forms =
@@ -97,13 +97,15 @@ render (x, y) state =
       h2sz = padding / 3.5
       halfsz = smallest / 2.0
   in
-    collage contextsz contextsz
-      ((renderText "Light || Dark"
-          0 (halfsz - h1sz) h1sz) ::
-       (renderText "Toggle any light by clicking on it."
-          0 (negate (halfsz - (h2sz * 2))) h2sz) ::
-       (renderGrid state.grid gridLength cellsz offset []))
-    |> container x y middle
+    collage x y [
+      (filled (greyscale 0.75) (rect (toFloat x) (toFloat y))),
+      toForm (collage contextsz contextsz
+        ((renderText "Light || Dark"
+            0 (halfsz - h1sz) h1sz) ::
+         (renderText "Toggle any light by clicking on it."
+            0 (negate (halfsz - (h2sz * 2))) h2sz) ::
+         (renderGrid state.grid gridLength cellsz offset []))
+       |> container x y middle)]
 
 toggleGrid : List Bool -> Int -> Int -> List Bool
 toggleGrid lights mx my =
