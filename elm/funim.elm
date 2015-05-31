@@ -42,7 +42,7 @@ getLevel level =
     Nothing -> []
 
 type alias State = { level : Int, grid : List Bool }
-gameState = { level = 1, grid = getLevel 2 }
+gameState = { level = 0, grid = getLevel 0}
 
 main : Signal Element
 main =
@@ -50,7 +50,7 @@ main =
 
 renderCell : Bool -> Float -> Float -> Float -> Form
 renderCell isLightOn x y size =
-  let clr = if isLightOn then green else red
+  let clr = if isLightOn then lightGrey else darkGrey
   in move (x, y) (filled clr (square size))
 
 renderGrid : List Bool -> Int -> Float -> Float -> List Form -> List Form
@@ -65,11 +65,17 @@ renderGrid state length size offset forms =
           y = offset + (yi * size)
       in renderGrid rest length size offset (
         (renderCell hd x y size) ::
-          (l |> toString |> Text.fromString |> text |> move (x, y)):: forms)
+          (((toString (floor x)) ++ ", " ++ (toString (floor y))) |> Text.fromString |> text |> move (x, y)):: forms)
+
+renderText : String -> Float -> Float -> Float -> Form
+renderText content x y sz =
+  move (x, (y - sz)) (Text.fromString content
+    |> Text.typeface [ "Helvetica" ]
+    |> Text.color darkGrey |> Text.height sz |> text)
 
 render : (Int, Int) -> Element
 render (x, y) =
-  let smallest = toFloat (min x y)
+  let smallest = toFloat (min (min x y) 1080)
       padding = smallest / 8
       contextsz = round (smallest)
       gridLength = gameState.grid |> List.length |> toFloat |> sqrt |> round
@@ -77,13 +83,8 @@ render (x, y) =
       cellsz = gridLength |> toFloat |> (/) gridsz
       hcellsz = cellsz / 2
       nhgridsz = gridsz |> (/) 2.0 |> (+) padding |> (+) hcellsz |> negate
-      textsz = padding / 2.5
   in
     collage contextsz contextsz
-      ((move (0, ((smallest / 2) - textsz)) (Text.fromString "Light || Dark"
-        |> Text.typeface [ "Helvetica" ]
-        |> Text.color lightGrey
-        |> Text.bold
-        |> Text.height textsz
-        |> text)) ::
-        (renderGrid gameState.grid gridLength cellsz nhgridsz []))
+      ((renderText "Light || Dark" 0 (smallest / 2.0) (padding / 2.5)) ::
+       (renderText "Toggle any light by clicking on it." 0 (negate (smallest / 4.0)) (padding / 3.5)) ::
+       (renderGrid gameState.grid gridLength cellsz nhgridsz []))
