@@ -73,7 +73,7 @@ renderGrid state length size offset forms =
 
 renderText : String -> Float -> Float -> Float -> Form
 renderText content x y sz =
-  move (x, (y - sz)) (Text.fromString content
+  move (x, y) (Text.fromString content
     |> Text.typeface [ "Helvetica" ]
     |> Text.color darkGrey |> Text.height sz |> text)
 
@@ -86,10 +86,13 @@ render (x, y) =
       gridsz = (toFloat contextsz) - (padding * 2)
       cellsz = gridLength |> toFloat |> (/) gridsz
       offset = calculateOffset cellsz gridLength
+      h1sz = padding / 2.5
+      h2sz = padding / 3.5
+      halfsz = smallest / 2.0
   in
     collage contextsz contextsz
       ((renderText "Light || Dark"
-          0 (smallest / 2.05) (padding / 2.5)) ::
+          0 (halfsz - h1sz) h1sz) ::
        (renderText "Toggle any light by clicking on it."
-          0 (negate (smallest / 2.05)) (padding / 3.5)) ::
+          0 (negate (halfsz - (h2sz * 2))) h2sz) ::
        (renderGrid gameState.grid gridLength cellsz offset []))
